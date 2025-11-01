@@ -13,7 +13,7 @@
   "runtimeVersion": "V8",
   "addOns": {
     "common": {
-      "name": "Drive Audit by MKJ",
+      "name": "Drive Audit by Mayank",
       "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_Drive_icon_(2020).svg",
       "useLocaleFromApp": true
     },
