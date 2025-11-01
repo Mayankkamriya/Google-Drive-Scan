@@ -1,11 +1,34 @@
 {
   "timeZone": "Asia/Kolkata",
-  "dependencies": {},
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Drive",
+        "version": "v3",
+        "serviceId": "drive"
+      }
+    ]
+  },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/spreadsheets.currentonly",
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/script.container.ui"
-  ]
+  "addOns": {
+    "common": {
+      "name": "Drive Audit by MKJ",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_Drive_icon_(2020).svg",
+      "useLocaleFromApp": true
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "runFunction": "onOpen",
+        "enabled": true
+      }
+    }
+  },
+ "oauthScopes": [
+  "https://www.googleapis.com/auth/drive",
+  "https://www.googleapis.com/auth/spreadsheets",
+  "https://www.googleapis.com/auth/script.container.ui",
+  "https://www.googleapis.com/auth/script.external_request"
+]
+
 }
