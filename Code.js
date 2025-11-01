@@ -61,14 +61,19 @@ function resetProgress() {
 }
 
 function updateProgress(scannedCount, totalFiles, nextPageToken) {
-  const progress = Math.min((scannedCount / totalFiles) * 100, 100).toFixed(2);
-  SCAN_STATE.setProperty('PROCESSED_COUNT', scannedCount.toString());
+  const prevCount = parseInt(SCAN_STATE.getProperty('PROCESSED_COUNT') || '0', 10);
+  const safeScanned = Math.max(scannedCount, prevCount); // never decrease
+  const progress = Math.min((safeScanned / totalFiles) * 100, 100).toFixed(2);
+
+  SCAN_STATE.setProperty('PROCESSED_COUNT', safeScanned.toString());
   SCAN_STATE.setProperty('progress', progress);
+
   if (nextPageToken) {
     SCAN_STATE.setProperty(PAGE_TOKEN_KEY, nextPageToken);
   } else {
     SCAN_STATE.deleteProperty(PAGE_TOKEN_KEY);
   }
+
   return progress;
 }
 
