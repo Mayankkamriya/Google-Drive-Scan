@@ -159,7 +159,7 @@ console.log(`Scanned ${scannedCount}/${totalFiles} (${progress}%)`);
   SCAN_STATE.setProperty(PROP_KEY, JSON.stringify(data));
   SCAN_STATE.setProperty('progress', '100');
   console.log(`✅ Completed scanning ${data.length} files.`);
-  return `✅ Completed scanning ${data.length} files. Click "Write to Sheet" to export.`;
+  return `✅ Completed scanning ${data.length} files. Click "Write to Sheet" to write data in the sheet..`;
 }
 
 /*************** PERMISSIONS BATCH (Parallel Requests) ***************/
