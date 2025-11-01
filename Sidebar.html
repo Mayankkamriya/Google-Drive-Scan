@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 16px; color: #333; }
+      h3 { text-align: center; margin-bottom: 20px; }
+      button {
+        width: 100%;
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+      }
+      button:hover { background-color: #155ec0; }
+      #msg { margin-top: 16px; font-size: 13px; text-align: center; }
+      #barContainer {
+        width: 100%; background: #eee; border-radius: 4px; margin-top: 10px;
+      }
+      #bar {
+        width: 0%; height: 10px; background-color: #4caf50;
+        border-radius: 4px; transition: width 0.3s ease;
+      }
+      #fileCount {
+        text-align: center;
+        font-size: 12px;
+        color: #555;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Drive Audit by MKJ</h3>
+    <button onclick="startScan()">🔍 Scan My Drive</button>
+    <button onclick="rescanDrive()">♻️ Re-scan</button>
+    <div id="barContainer"><div id="bar"></div></div>
+    <div id="fileCount"></div>
+    <p id="msg"></p>
+
+    <script>
+      let totalFiles = 0;
+
+      function setMessage(text, color = 'green') {
+        const msg = document.getElementById('msg');
+        msg.textContent = text;
+        msg.style.color = color;
+      }
+
+      function updateProgress(pct) {
+        document.getElementById('bar').style.width = pct + '%';
+      }
+
+      function updateFileCount(current, total) {
+        document.getElementById('fileCount').textContent =
+          `📂 Scanning ${current} of ${total} files...`;
+      }
+
+      function startScan() {
+        setMessage('Initializing scan...');
+        updateProgress(0);
+        document.getElementById('fileCount').textContent = '';
+
+        // Fetch total file count once before scanning starts
+        google.script.run
+          .withSuccessHandler(total => {
+            totalFiles = total;
+            if (total === 0) {
+              setMessage('No files found in your Drive.', 'red');
+              return;
+            }
+            setMessage(`Found ${totalFiles} files. Starting scan...`);
+            updateFileCount(0, totalFiles);
+
+            google.script.run
+              .withFailureHandler(err => setMessage('❌ Error initializing: ' + err.message, 'red'))
+              .resetProgress();
+
+            runScanStep(0);
+          })
+          .withFailureHandler(err => setMessage('❌ Failed to count files: ' + err.message, 'red'))
+          .countAllFiles();
+      }
+
+      function runScanStep(index) {
+        google.script.run
+          .withSuccessHandler(res => {
+            google.script.run.withSuccessHandler(progress => {
+              updateProgress(Number(progress));
+            }).getProgress();
+
+            if (res.done) {
+              updateProgress(100);
+              document.getElementById('fileCount').textContent = `✅ Scanned all ${totalFiles} files.`;
+              setMessage(res.message, res.message.startsWith('✅') ? 'green' : 'red');
+            } else {
+              updateFileCount(res.nextIndex + 1, totalFiles);
+              setTimeout(() => runScanStep(res.nextIndex), 300);
+            }
+          })
+          .withFailureHandler(err => {
+            console.error('Script failed:', err);
+            setMessage('❌ Script failed: ' + err.message, 'red');
+            updateProgress(0);
+          })
+          .scanDriveStep(index);
+      }
+
+      function rescanDrive() {
+        setMessage('♻️ Clearing old data and restarting...');
+        updateProgress(0);
+        document.getElementById('fileCount').textContent = '';
+        google.script.run
+          .withSuccessHandler(() => {
+            setTimeout(() => startScan(), 1000);
+          })
+          .withFailureHandler(err => {
+            setMessage('❌ Failed to restart scan: ' + err.message, 'red');
+          })
+          .resetProgress();
+      }
+    </script>
+  </body>
+</html>
